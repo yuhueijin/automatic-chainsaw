@@ -14,14 +14,12 @@ function initWebSocketServer(server) {
         // Handle incoming messages from the client
         ws.on('message', (message) => {
             const parsedMessage = JSON.parse(message);
-            if (parsedMessage.action === 'subscribe') {
-                const channel = parsedMessage.channel;
+            if (parsedMessage.event === 'subscribe') {
                 // Subscribe the client to the specified channel
-                subscribe(ws, channel);
-            } else if (parsedMessage.action === 'unsubscribe') {
-                const channel = parsedMessage.channel;
+                subscribe(ws);
+            } else if (parsedMessage.event === 'unsubscribe') {
                 // Unsubscribe the client from the specified channel
-                unsubscribe(ws, channel);
+                unsubscribe(ws);
             } else {
                 console.log(`Received from client: ${message}`);
                 // Echo the message back to the client
