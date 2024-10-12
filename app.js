@@ -5,7 +5,7 @@ const WebSocket = require('ws');
 
 const dataRouter = require('./routes/data');
 const userRateLimiter = require('./middleware/userRateLimiter');
-const initWebSocketServer = require('./websocket/websocketServer');
+const initWebSocketServer = require('./webSocket/webSocketServer');
 
 
 const app = express();

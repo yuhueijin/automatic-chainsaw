@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-//const { subscribe, unsubscribe, bitstampWs } = require('./bitstampWs'); // Import Bitstamp WebSocket functions
+const { subscribe, unsubscribe, bitstampWs } = require('./bitstampWs'); // Import Bitstamp WebSocket functions
 
 // Function to initialize WebSocket server
 function initWebSocketServer(server) {
@@ -17,11 +17,11 @@ function initWebSocketServer(server) {
             if (parsedMessage.action === 'subscribe') {
                 const channel = parsedMessage.channel;
                 // Subscribe the client to the specified channel
-                //subscribe(ws, channel);
+                subscribe(ws, channel);
             } else if (parsedMessage.action === 'unsubscribe') {
                 const channel = parsedMessage.channel;
                 // Unsubscribe the client from the specified channel
-                //unsubscribe(ws, channel);
+                unsubscribe(ws, channel);
             } else {
                 console.log(`Received from client: ${message}`);
                 // Echo the message back to the client
