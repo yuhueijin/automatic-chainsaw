@@ -1,15 +1,15 @@
-var express = require('express');
-var logger = require('morgan');
+const express = require('express');
+const logger = require('morgan');
 
-var usersRouter = require('./routes/users');
+const dataRouter = require('./routes/data');
 
-var app = express();
+const app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/users', usersRouter);
+app.use('/data', dataRouter);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
