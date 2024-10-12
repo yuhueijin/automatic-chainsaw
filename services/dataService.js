@@ -1,10 +1,17 @@
-// Mock data for demonstration
-const users = {
-    1: { id: 1, name: 'Alice', age: 30 },
-    2: { id: 2, name: 'Bob', age: 25 },
-  };
-  
-  // Service function to get user data by ID
-  exports.getUserDataById = (id) => {
-    return users[id] || null;  // Return user data or null if not found
-  };
+const axios = require('axios');
+
+// Service function to get numbers divisible by the provided ID
+exports.getNumbersDivisibleById = async (id) => {
+    try {
+        const response = await axios.get('https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty');
+        const numbers = response.data; 
+
+        // Filter numbers divisible by the provided id
+        const divisibleNumbers = numbers.filter(number => number % id === 0);
+
+        return divisibleNumbers;
+    } catch (error) {
+        console.error('Error fetching top stories:', error);
+        return null;
+    }
+};
