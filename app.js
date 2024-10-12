@@ -5,6 +5,7 @@ const WebSocket = require('ws');
 
 const dataRouter = require('./routes/data');
 const userRateLimiter = require('./middleware/userRateLimiter');
+const initWebSocketServer = require('./websocket/websocketServer');
 
 
 const app = express();
@@ -13,7 +14,7 @@ const app = express();
 const server = http.createServer(app);
 
 // Initialize the WebSocket server instance, but don't immediately connect
-const wss = new WebSocket.Server({ noServer: true});
+const wss = initWebSocketServer();
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -23,27 +24,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/data', userRateLimiter);
 
 app.use('/data', dataRouter);
-
-// WebSocket connection handler for `/streaming`
-wss.on('connection', (ws) => {
-    console.log('New client connected to /streaming');
-  
-    // Send a message to the connected client
-    ws.send('Connected to /streaming WebSocket!');
-  
-    // Handle incoming messages from the client
-    ws.on('message', (message) => {
-      console.log(`Received: ${message}`);
-      // Echo the message back to the client
-      ws.send(`Server echo: ${message}`);
-    });
-  
-    // Handle connection close
-    ws.on('close', () => {
-      console.log('Client disconnected from /streaming');
-    });
-  });
-  
 
 // Handle WebSocket upgrades and route them based on the URL path
 server.on('upgrade', (request, socket, head) => {
