@@ -11,11 +11,12 @@ exports.getUserData = async (req, res) => {
     try {
         const result = await dataService.getNumbersDivisibleById(userId);
 
-        if (result) {
-            res.status(200).json({ result });
-        } else {
+        if (!result) {
             res.status(500).json({ error: 'Unable to fetch data' });
+            return
         }
+
+        res.status(200).json({ result });
     } catch (error) {
         res.status(500).json({ error: 'An error occurred' });
     }
