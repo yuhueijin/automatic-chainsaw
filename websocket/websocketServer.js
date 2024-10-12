@@ -1,9 +1,9 @@
 const WebSocket = require('ws');
-const { subscribe, unsubscribe, bitstampWs } = require('./bitstampWs'); // Import Bitstamp WebSocket functions
+const { subscribe, unsubscribe, sendOhlc } = require('./bitstampWs'); // Import Bitstamp WebSocket functions
 
 // Function to initialize WebSocket server
 function initWebSocketServer(server) {
-    const wss = new WebSocket.Server({ noServer:true });
+    const wss = new WebSocket.Server({ noServer: true });
 
     wss.on('connection', (ws) => {
         console.log('New client connected to /streaming');
@@ -20,6 +20,8 @@ function initWebSocketServer(server) {
             } else if (parsedMessage.event === 'unsubscribe') {
                 // Unsubscribe the client from the specified channel
                 unsubscribe(ws);
+            } else if (parsedMessage.event === 'ohlc') {
+                sendOhlc(ws);
             } else {
                 console.log(`Received from client: ${message}`);
                 // Echo the message back to the client

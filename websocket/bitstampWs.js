@@ -1,11 +1,12 @@
 const WebSocket = require('ws');
+const { updateOHLC, printOHLC, ohlcData } = require('../services/ohlcService')
 
 // Create a Bitstamp WebSocket connection
 const bitstampUrl = 'wss://ws.bitstamp.net';
 const bitstampWs = new WebSocket(bitstampUrl);
 
 // Store subscriptions and the WebSocket server instance
-const subscriptions = new Set(); 
+const subscriptions = new Set();
 
 const channels = [
     "live_trades_btcusd", "live_trades_btceur", "live_trades_btcgbp"
@@ -24,6 +25,13 @@ bitstampWs.on('message', (data) => {
     console.log('Received message from Bitstamp:', message);
     // Broadcast received messages to all subscribed clients
     broadcastToSubscribedClients(message);
+
+    if (message.event === 'trade' && message.data) {
+        const channel = message.channel;
+        const price = parseFloat(message.data.price);
+        const timestamp = message.data.microtimestamp / 1000; // Convert microtimestamp to milliseconds
+        updateOHLC(channel, price, timestamp); // Update the 1-minute OHLC data
+    }
 });
 
 // Handle errors from the Bitstamp WebSocket
@@ -99,9 +107,28 @@ function broadcastToSubscribedClients(message) {
     });
 }
 
+
+// Unsubscribe a client from a Bitstamp channel
+function sendOhlc(client) {
+    subscriptions.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            ohlcData.forEach((data, channel) => {
+                const message = JSON.stringify({
+                    event: 'ohlc',
+                    channel: channel,
+                    data: {
+                        ohlc: data
+                    }
+                });
+                client.send(message);
+            })
+        }
+    });
+}
+
 // Export functions to be used in the main server file
 module.exports = {
     subscribe,
     unsubscribe,
-    bitstampWs,
+    sendOhlc
 };
