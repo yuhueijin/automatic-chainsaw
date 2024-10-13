@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const { updateOHLC, printOHLC, ohlcData } = require('../services/ohlcService')
+const { updateOHLC, ohlcData } = require('../services/ohlcService')
 
 // Create a Bitstamp WebSocket connection
 const bitstampUrl = 'wss://ws.bitstamp.net';

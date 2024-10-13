@@ -3,9 +3,9 @@ const logger = require('morgan');
 const http = require('http');
 const WebSocket = require('ws');
 
-const dataRouter = require('./routes/data');
-const userRateLimiter = require('./middleware/userRateLimiter');
-const initWebSocketServer = require('./webSocket/webSocketServer');
+const dataRouter = require('./src/routes/data');
+const userRateLimiter = require('./src/middleware/userRateLimiter');
+const initWebSocketServer = require('./src/webSocket/webSocketServer');
 
 
 const app = express();
