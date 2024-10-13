@@ -16,7 +16,7 @@ client.connect();
 
 // Function to set OHLC data with expiration (TTL)
 function set(key, value, ttl) {
-    client.set(key, JSON.stringify(value), 'EX', ttl * 60); // Expires in 15 minutes
+    client.set(key, JSON.stringify(value), { EX: ttl * 60 }); // Expires in 15 minutes
 }
 
 // Function to get OHLC data from Redis
