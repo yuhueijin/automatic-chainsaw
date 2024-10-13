@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 const { subscribe, unsubscribe, sendOhlc } = require('./bitstampWs'); // Import Bitstamp WebSocket functions
 
 // Function to initialize WebSocket server
-function initWebSocketServer(server) {
+function initWebSocketServer() {
     const wss = new WebSocket.Server({ noServer: true });
 
     wss.on('connection', (ws) => {
@@ -38,5 +38,18 @@ function initWebSocketServer(server) {
     return wss; // Return the WebSocket server instance if needed
 }
 
-// Export the init function
-module.exports = initWebSocketServer;
+const handleWebSocketUpgrade = (wss, request, socket, head) => {
+    if (request.url === '/streaming') {
+        wss.handleUpgrade(request, socket, head, (ws) => {
+            wss.emit('connection', ws, request);
+        });
+    } else {
+        socket.destroy(); // Close connection for non-matching paths
+    }
+};
+
+module.exports = {
+    initWebSocketServer,
+    handleWebSocketUpgrade
+};
+
