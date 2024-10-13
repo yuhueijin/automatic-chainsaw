@@ -1,12 +1,15 @@
-const ohlcData = new Map(); // Array to store the last 15 minutes of OHLC data
+const { set, get, getAllByPrefix } = require('../configuration/redisClient')
 const MAX_MINUTES = 15; // Store data for the last 15 minutes
+
+// Key format: OHLC_<channel>_<date>
+const getOHLCKey = (channel, date) => `OHLC:${channel}:${date}`;
 
 // Function to initialize a new OHLC object
 function initializeOHLC(time) {
     return {
         open: null,
-        high: null,
-        low: null,
+        high: Number.MIN_VALUE,
+        low: Number.MAX_VALUE,
         close: null,
         date: convertTimestampToISO(time),
     };
@@ -18,45 +21,40 @@ function convertTimestampToISO(timestamp) {
 }
 
 // Function to update OHLC data with a new price tick
-function updateOHLC(channel, price, time) {
-    if (!ohlcData.has(channel)) {
-        ohlcData.set(channel, []);
-    }
-
+async function updateOHLC(channel, price, time) {
     const currentMinute = convertTimestampToISO(time); // Convert timestamp to minutes
+    const key = getOHLCKey(channel, currentMinute);
 
-    const channelOhlcData = ohlcData.get(channel);
-    let currentOHLC = channelOhlcData.find(ohlc => ohlc.date === currentMinute);
-
-    // If the current minute's OHLC data doesn't exist, create a new one
+    const cacheOHLC = await get(key);
+    let currentOHLC = cacheOHLC;
     if (!currentOHLC) {
-        if (channelOhlcData.length >= MAX_MINUTES) {
-            channelOhlcData.shift(); // Remove the oldest minute's OHLC data to maintain 15-minute window
-        }
-
         currentOHLC = initializeOHLC(time);
         currentOHLC.open = price;
-        currentOHLC.high = price;
-        currentOHLC.low = price;
-        currentOHLC.close = price;
-
-        channelOhlcData.push(currentOHLC); // Add the new OHLC data for the current minute
-    } else {
-        // Update the existing OHLC for the current minute
-        currentOHLC.close = price;
-        if (price > currentOHLC.high) currentOHLC.high = price;
-        if (price < currentOHLC.low) currentOHLC.low = price;
     }
+
+    // Update existing OHLC data
+    currentOHLC.close = price;
+    currentOHLC.high = Math.max(currentOHLC.high, price);
+    currentOHLC.low = Math.min(currentOHLC.low, price);
+    set(key, currentOHLC, MAX_MINUTES); // Update OHLC in Redis with TTL
 }
 
-// Example function to print OHLC data (for testing)
-function printOHLC() {
-    console.log('Current OHLC data for the last 15 minutes:', ohlcData);
+async function getOHLC() {
+    const result = await getAllByPrefix("OHLC:")
+    console.log(result);
+    return result.reduce((acc, obj) => {
+        const channel = obj.key.split(':')[1];
+        if (!acc.has(channel)) {
+            acc.set(channel, []);
+        }
+        const data = acc.get(channel);
+        data.push(obj.value);
+        acc.set(channel, data);
+        return acc;
+    }, new Map());
 }
-
 
 module.exports = {
     updateOHLC,
-    printOHLC,
-    ohlcData
+    getOHLC
 };

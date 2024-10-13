@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const { updateOHLC, ohlcData } = require('../services/ohlcService')
+const { updateOHLC, getOHLC } = require('../services/ohlcService')
 
 // Create a Bitstamp WebSocket connection
 const bitstampUrl = 'wss://ws.bitstamp.net';
@@ -45,7 +45,7 @@ bitstampWs.on('close', () => {
 });
 
 // Subscribe a client to a Bitstamp channel
-function subscribe(client, channel) {
+function subscribe(client) {
     if (subscriptions.has(client)) {
         client.send(`Already subscribed.`);
         return;
@@ -110,8 +110,13 @@ function broadcastToSubscribedClients(message) {
 
 // Unsubscribe a client from a Bitstamp channel
 function sendOhlc(client) {
-    subscriptions.forEach((client) => {
+    subscriptions.forEach(async (client) => {
         if (client.readyState === WebSocket.OPEN) {
+            const ohlcData = await getOHLC();
+            if (!ohlcData) {
+                return;
+            }
+
             ohlcData.forEach((data, channel) => {
                 const message = JSON.stringify({
                     event: 'ohlc',
