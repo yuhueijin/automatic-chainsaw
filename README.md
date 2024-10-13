@@ -40,13 +40,9 @@ The Docker configuration is located at:
 
 > ./Dockerfile
 
-To build the Docker image, use:
+To run the docker with redis
 
-> docker build -t express-app .
-
-To run the Docker container, use:
-
-> docker run -d -p 3000:3000 express-app
+> docker-compose up
 
 ## WebSocket
 To connect to the WebSocket, use:

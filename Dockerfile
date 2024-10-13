@@ -16,5 +16,7 @@ COPY . .
 # Expose the application port
 EXPOSE 3000
 
+ENV DOCKER_CONTAINER true
+
 # Start the application
 CMD ["npm", "start"]

@@ -1,6 +1,12 @@
 const { createClient } = require('redis');
 
-const client = createClient();
+const client = createClient(
+    process.env.DOCKER_CONTAINER === "true"
+        ? {
+            url: "redis://redis-docker-service:6379",
+        }
+        : { url: "redis://127.0.0.1:6379" }
+);
 
 client.on('connect', () => {
     console.log('Connected to Redis');
