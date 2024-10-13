@@ -1,8 +1,7 @@
 const dataService = require('../services/dataService');
 
-// Controller function to get numbers divisible by user id
 exports.getUserData = async (req, res) => {
-    const userId = parseInt(req.query.user);  // Get the 'user' parameter from query string
+    const userId = parseInt(req.query.user);
 
     if (!userId || isNaN(userId)) {
         return res.status(400).json({ error: 'Valid User ID is required' });
