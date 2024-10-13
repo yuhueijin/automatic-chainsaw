@@ -1,7 +1,7 @@
 const { set, get, getAllByPrefix } = require('../configuration/redisClient')
 const MAX_MINUTES = 15; // Store data for the last 15 minutes
 
-// Key format: OHLC_<channel>_<date>
+// Key format: OHLC:<channel>:<date>
 const getOHLCKey = (channel, date) => `OHLC:${channel}:${date}`;
 
 // Function to initialize a new OHLC object
@@ -41,7 +41,6 @@ async function updateOHLC(channel, price, time) {
 
 async function getOHLC() {
     const result = await getAllByPrefix("OHLC:")
-    console.log(result);
     return result.reduce((acc, obj) => {
         const channel = obj.key.split(':')[1];
         if (!acc.has(channel)) {
